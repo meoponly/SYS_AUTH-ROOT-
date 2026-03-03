@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>0x00_PROTOCOL</title>
+    <style>
+        :root {
+            --primary: #ff0000; /* Blood red for a "dangerous" look */
+            --bg: #000000;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--primary);
+            font-family: 'Courier New', Courier, monospace;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Matrix Canvas Background */
+        #matrixCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1; /* Puts it behind everything */
+            opacity: 0.3; /* Subtle background effect */
+        }
+
+        /* Glitchy Coded Title */
+        .encrypted-title {
+            font-size: 0.8rem;
+            letter-spacing: 5px;
+            margin-bottom: 20px;
+            color: #330000;
+            text-transform: uppercase;
+            z-index: 10;
+        }
+
+        #login-container, #directory {
+            border: 2px solid var(--primary);
+            padding: 30px;
+            background: rgba(10, 0, 0, 0.95); /* Semi-transparent black */
+            box-shadow: 0 0 20px #550000;
+            text-align: left;
+            z-index: 10;
+        }
+
+        .input-line {
+            display: flex;
+            align-items: center;
+        }
+
+        input {
+            background: transparent;
+            border: none;
+            color: var(--primary);
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.2rem;
+            outline: none;
+            width: 250px;
+        }
+
+        /* Directory Styling */
+        #directory {
+            display: none;
+            width: 80%;
+            max-width: 600px;
+        }
+
+        .dir-item {
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px transparent;
+            cursor: pointer;
+            display: block;
+            text-decoration: none;
+            color: var(--primary);
+        }
+
+        .dir-item:hover {
+            background: var(--primary);
+            color: #000;
+            font-weight: bold;
+        }
+
+        /* PDF Viewport - Cleaned up */
+        #viewport {
+            display: none;
+            width: 100vw;
+            height: 100vh;
+            z-index: 20; /* On top of everything */
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            /* filters removed: PDF now looks normal */
+        }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+
+    <canvas id="matrixCanvas"></canvas>
+
+    <div class="encrypted-title">
+        [ 4D 45 4F 50 4F 4E 4C 59 _ SEC_ENCRYPT_01 ]
+    </div>
+
+    <div id="login-container">
+        <div class="input-line">
+            <span>SYS_AUTH@ROOT:~$ </span>
+            <input type="password" id="passInput" autofocus>
+        </div>
+    </div>
+
+    <div id="directory">
+        <div style="margin-bottom: 20px; border-bottom: 1px solid var(--primary);">ROOT/VOL_01/SUBJECTS/</div>
+        <div class="dir-item" onclick="openDoc()">
+            [+] 0x1A4_QUANTITATIVE_LOGIC_CORE.sys
+        </div>
+        <div style="opacity: 0.3;" class="dir-item">
+            [ ] 0x1B2_PHYS_DYNAMICS_UNSTABLE (LOCKED)
+        </div>
+        <div style="opacity: 0.3;" class="dir-item">
+            [ ] 0x1C9_CHEM_REACTIVE_FLUIDS (LOCKED)
+        </div>
+    </div>
+
+    <div id="viewport">
+        <iframe src="WhatsApp Image 2026-02-17 at 21.24.07.pdf#toolbar=0&navpanes=0"></iframe>
+    </div>
+
+    <script>
+        // --- Password and UI Logic ---
+        const passInput = document.getElementById('passInput');
+        
+        // ENTER KEY IS FIXED: It checks password immediately
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && document.activeElement === passInput) {
+                checkAccess();
+            }
+        });
+
+        function checkAccess() {
+            if (passInput.value === 'meoponly') {
+                document.getElementById('login-container').style.display = 'none';
+                document.querySelector('.encrypted-title').innerText = "STATUS: ACCESS_GRANTED";
+                document.getElementById('directory').style.display = 'block';
+            } else {
+                // Flash the screen on failure
+                document.body.style.backgroundColor = '#200';
+                setTimeout(() => { document.body.style.backgroundColor = '#000000'; }, 100);
+                passInput.value = '';
+            }
+        }
+
+        function openDoc() {
+            document.getElementById('directory').style.display = 'none';
+            document.querySelector('.encrypted-title').style.display = 'none';
+            document.getElementById('viewport').style.display = 'block';
+        }
+
+        // --- Panic Key (Esc) and Anti-Save Shortcuts ---
+        window.onkeydown = function(e) {
+            if (e.key === "Escape") { window.location.replace("https://www.google.com"); }
+            if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'p')) e.preventDefault();
+        }
+
+        // --- Matrix Digital Rain Background Logic ---
+        const canvas = document.getElementById('matrixCanvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.height = window.innerHeight;
+        canvas.width = window.innerWidth;
+
+        // Use complex characters for the horrible/safe aesthetic
+        const characters = "アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ0x";
+        const charArray = characters.split('');
+
+        const fontSize = 16;
+        const columns = canvas.width / fontSize;
+        const drops = [];
+
+        for (let x = 0; x < columns; x++) drops[x] = 1;
+
+        function drawMatrix() {
+            // Fades previous frame to create trail effect
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#ff0000'; // Blood Red Rain
+            ctx.font = fontSize + 'px monospace';
+
+            for (let i = 0; i < drops.length; i++) {
+                const text = charArray[Math.floor(Math.random() * charArray.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                if (drops[i] * fontSize > canvas.width && Math.random() > 0.975) drops[i] = 0;
+                drops[i]++;
+            }
+        }
+        setInterval(drawMatrix, 35);
+    </script>
+</body>
+</html>
